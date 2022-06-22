@@ -7,11 +7,11 @@ public class Demukron {
     int[][] matrix;               // матрица смежности
     int[] sum;                    // сумма полустепеней захода
     List<Integer>[] graph;        // граф
-    List<Integer>[] resultGraph;  // результирующий граф
+
+    List<Integer> order = new ArrayList<>();   // список с нулевыми узлами
 
     public Demukron(List<Integer>[] graph) {
         this.graph = graph;
-        this.resultGraph = new List[graph.length];
         createMatrix();
     }
 
@@ -58,37 +58,43 @@ public class Demukron {
         System.out.println();
     }
 
-    public List<Integer>[] sort() {
-        List<Integer> zeroes = new ArrayList<>();
-        List<Integer> subtract = new ArrayList<>();
-        for (int i = 0; i < sum.length; i++) {
-            calcSum();
+    public void sort() {
+        order = new ArrayList<>(matrix.length);
 
-            // Ищем нулевые колонки и добавляем соответствующие элементы в упорядоченный граф
-            if (sum[i] == 0 && !zeroes.contains(i)) {
-                zeroes.add(i);
-                subtract.add(i);
-                resultGraph[i] = graph[i];
+        List<Integer> subtract = new ArrayList<>(); // список строк для вычитания из матрицы
+
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix.length; j++) {
+                sum = calcSum();
+
+                // Ищем нулевые колонки и добавляем соответствующие элементы в упорядоченный граф
+                if (sum[j] == 0 && !order.contains(j)) {
+                    order.add(j);
+                    subtract.add(j);
+                }
             }
 
-            // Вычитаем вектор i из матрицы
+            // Вычитаем вектор j из матрицы
             for (Integer s : subtract) {
                 subtract(s);
+                sum = calcSum();
                 printMatrix();
             }
 
             subtract.clear();
         }
-
-        return resultGraph;
     }
 
-    private void calcSum(){
+    private int[] calcSum() {
+        int[] retVal = new int[matrix.length];
+
         for (int i = 0; i < matrix.length; i++) {
             for (int j = 0; j < matrix.length; j++) {
-                sum[j] += matrix[i][j];
+                retVal[j] += matrix[i][j];
             }
         }
+
+        return retVal;
     }
 
     private void subtract(int rowNum) {
@@ -96,6 +102,7 @@ public class Demukron {
             for (int j = 0; j < matrix.length; j++) {
                 matrix[i][j] -= matrix[rowNum][j];
 
+                // Сумма не может быть отрицательной
                 if (matrix[i][j] < 0) {
                     matrix[i][j] = 0;
                 }

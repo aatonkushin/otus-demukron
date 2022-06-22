@@ -29,8 +29,9 @@ public class Main {
             graph[x].add(y);
         }
         Demukron demukron = new Demukron(graph);
+        demukron.sort();
 
-        System.out.println("Результирующий граф");
-        System.out.println(Arrays.toString(demukron.sort()));
+        System.out.println("Результирующий граф: ");
+        System.out.println(demukron.order);
     }
 }
